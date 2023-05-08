@@ -2,11 +2,12 @@ from jbi100_app.main import app
 from jbi100_app.data import get_data
 from jbi100_app.views.menu import make_menu_layout
 from jbi100_app.views.barchart import SimpleBarChart
+from jbi100_app.views.scatterplot import ScatterPlot
 from jbi100_app.views.boxplot import BoxPlot
 
 from dash import html, dcc, html, Input, Output
 import plotly.express as px
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 
 
 if __name__ == '__main__':
@@ -86,9 +87,9 @@ if __name__ == '__main__':
         Output("visualizations-container", "children"),
         Input("team-dropdown", "value"),
         Input("position-dropdown", "value"),
-        Input("feature-dropdown", "value")
+        Input("feature-dropdown", "value"),
     )
-    def update_visualizations(team, position, feature):
+    def update_visualizations(team, position, feature_y):
         mask = (combined["team"] == team) & (combined["position"] == position)
         filtered_df = combined[mask]
 
@@ -96,13 +97,16 @@ if __name__ == '__main__':
         position_df = combined[position_mask]
 
         # Create your visualizations using the filtered_df DataFrame
-        barchart = SimpleBarChart("Barchart 1", "player", feature, filtered_df)
-        boxplot = BoxPlot("Box Plot", "position", feature, position_df)
+        barchart = SimpleBarChart("Barchart 1", "player", feature_y, filtered_df)
+        boxplot = BoxPlot("Box Plot", "position", feature_y, position_df)
+        scatterplot = ScatterPlot("Scatter Plot", "player", feature_y, filtered_df)
 
         # Add your visualizations as children to the container
         return [
             barchart,
-            boxplot
+            boxplot,
+            scatterplot
         ]
+
 
     app.run_server(debug=False, dev_tools_ui=False)
