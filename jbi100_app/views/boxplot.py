@@ -17,12 +17,27 @@ class BoxPlot(html.Div):
         )
 
     def create_fig(self, name):
-        layout = go.Layout(
-            title=name,
-            xaxis=dict(title=self.x),
-            yaxis=dict(title=self.y)
+        fig = go.Figure()
+
+        fig.add_trace(go.Box(
+            y=self.df[self.y],
+            x=self.df[self.x],
+            name="All Players",
+            marker_color='#1f77b4',
+            line=dict(color='#1f77b4')
+        ))
+
+        fig.update_layout(
+            title=dict(text=name, font=dict(size=18, color='#2c3e50')),
+            xaxis_title=self.x,
+            yaxis_title=self.y,
+            plot_bgcolor='rgba(255,255,255,1)',
+            margin=dict(l=0, r=0, t=30, b=0),
+            font=dict(family='Arial, sans-serif',
+                      size=14,
+                      color='#2c3e50'),
+            xaxis=dict(gridcolor='rgba(230,230,230,1)'),
+            yaxis=dict(gridcolor='rgba(230,230,230,1)'),
         )
-        fig = go.Figure(layout=layout)
-        fig.add_trace(go.Box(y=self.df[self.y], x=self.df[self.x], name="All Players"))
 
         return fig

@@ -25,12 +25,19 @@ class SimpleBarChart(html.Div):
         fig.add_trace(go.Bar(
             x=x_values,
             y=y_values,
-            marker_color='rgb(200,200,200)'
+            marker_color='#1f77b4'
         ))
 
         fig.update_layout(
             xaxis_title=self.feature_x,
             yaxis_title=self.feature_y,
+            plot_bgcolor='rgba(255,255,255,1)',
+            margin=dict(l=0, r=0, t=30, b=0),
+            font=dict(family='Arial, sans-serif',
+                      size=14,
+                      color='#2c3e50'),
+            xaxis=dict(gridcolor='rgba(230,230,230,1)'),
+            yaxis=dict(gridcolor='rgba(230,230,230,1)'),
         )
 
         return fig
