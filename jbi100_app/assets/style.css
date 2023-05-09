@@ -46,3 +46,30 @@ h5 {
     padding-bottom: 7px;
     border-bottom:  1px solid #ccc;
 }
+
+.dropdown-settings-container {
+    background-color: #353558;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    width: 250px;
+    margin-bottom: 20px;
+}
+
+.dropdown-settings-title {
+    margin: 0;
+}
+
+.dropdowns-container {
+    display: flex;
+    justify-content: flex-start;
+    padding: 20px;
+}
+
+.dropdown-label {
+    font-weight: bold;
+}
+
+.dropdown {
+    width: 250px;
+}
