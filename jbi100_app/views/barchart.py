@@ -2,7 +2,7 @@ from dash import dcc, html
 import plotly.graph_objects as go
 
 
-class SimpleBarChart(html.Div):
+class BarChart(html.Div):
     def __init__(self, name, feature_x, feature_y, df, highlighted_team=None, highlighted_player=None):
         self.html_id = name.lower().replace(" ", "-")
         self.df = df

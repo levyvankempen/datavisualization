@@ -6,13 +6,16 @@ import numpy as np
 
 from jbi100_app.data import get_data
 from jbi100_app.data import get_relevant_features
-from jbi100_app.views.barchart import SimpleBarChart
+from jbi100_app.views.barchart import BarChart
 from jbi100_app.views.scatterplot import ScatterPlot
 from jbi100_app.views.boxplot import BoxPlot
 
+from jbi100_app.views.BarChartUpdate import SimpleBarChart
+from jbi100_app.views.BoxPlotUpdate import SimpleBoxPlot
+
 
 # Create data
-df, keepers, defenders, midfielders, attackers, combined = get_data()
+combined = get_data()
 
 # Get relevant position features
 useful_cols_GK, useful_cols_DF, useful_cols_MF, useful_col_FW = get_relevant_features()
@@ -33,115 +36,72 @@ position_features = {
 
 app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY])
 
-# Create the layout
-sidebar1 = html.Div(
-    [
-        dbc.Row(
-            [
-                html.H5('Settings',
-                        style={'margin-top': '12px', 'margin-left': '24px'})
-            ],
-            style={"height": "5vh"},
-            className='bg-primary text-white'
-        ),
-        dbc.Row(
-            [
-                html.Div(
-                    [
-                        html.P("Select Team:",
-                               style={'margin-top': '8px', 'margin-bottom': '4px'},
-                               className="dropdown-label"),
-                        dcc.Dropdown(
-                            id="team-dropdown1",
-                            #options=[{"label": team, "value": team} for team in combined['team'].unique()],
-                            options=[{"label": team, "value": team} for team in np.sort(combined['team'].unique())],
-                            value=combined['team'].unique()[0],
-                            className="dropdown",
-                            clearable=True,
-                            searchable=True,
-                            placeholder='Type or select an option...'
-                        ),
-                        html.P("Select Position:", className="dropdown-label"),
-                        dcc.Dropdown(
-                            id="position-dropdown1",
-                            options=[{"label": position, "value": position} for position in
-                                     combined['position'].unique()],
-                            value=combined['position'].unique()[0],
-                            className="dropdown",
-                            clearable=True,
-                            searchable=True,
-                            placeholder='Type or select an option...'
 
-                        ),
-                        html.P("Select Feature:", className="dropdown-label"),
-                        dcc.Dropdown(
-                            id="feature-dropdown1",
-                            className="dropdown",
-                            clearable=True,
-                            searchable=True,
-                            placeholder='Type or select an option...'
-                        ),
-                        html.P("Select other feature to see relation:", className="dropdown-label"),
-                        dcc.Dropdown(
-                            id="feature-dropdown1_2",
-                            className="dropdown",
-                            clearable=True,
-                            searchable=True,
-                            placeholder='Type or select an option...'
-                        )
-                    ],
-                ),
-            ],
-            style={'height': '50vh', 'margin': '8px'}
-        )
-    ],
-)
+def create_sidebar(id_suffix):
+    return html.Div(
+        [
+            dbc.Row(
+                [
+                    html.H5('Settings',
+                            style={'margin-top': '12px', 'margin-left': '24px'})
+                ],
+                style={"height": "5vh"},
+                className='bg-primary text-white'
+            ),
+            dbc.Row(
+                [
+                    html.Div(
+                        [
+                            html.P("Select Team:",
+                                   style={'margin-top': '8px', 'margin-bottom': '4px'},
+                                   className="dropdown-label"),
+                            dcc.Dropdown(
+                                id=f"team-dropdown{id_suffix}",
+                                options=[{"label": team, "value": team} for team in np.sort(combined['team'].unique())],
+                                value=combined['team'].unique()[0],
+                                className="dropdown",
+                                clearable=True,
+                                searchable=True,
+                                placeholder='Type or select an option...'
+                            ),
+                            html.P("Select Position:", className="dropdown-label"),
+                            dcc.Dropdown(
+                                id=f"position-dropdown{id_suffix}",
+                                options=[{"label": position, "value": position} for position in
+                                         combined['position'].unique()],
+                                value=combined['position'].unique()[0],
+                                className="dropdown",
+                                clearable=True,
+                                searchable=True,
+                                placeholder='Type or select an option...'
+                            ),
+                            html.P("Select Feature:", className="dropdown-label"),
+                            dcc.Dropdown(
+                                id=f"feature-dropdown{id_suffix}",
+                                className="dropdown",
+                                clearable=True,
+                                searchable=True,
+                                placeholder='Type or select an option...'
+                            ),
+                            html.P("Select other feature to see relation:", className="dropdown-label") if id_suffix == '1' else None,
+                            dcc.Dropdown(
+                                id=f"feature-dropdown{id_suffix}_2",
+                                className="dropdown",
+                                clearable=True,
+                                searchable=True,
+                                placeholder='Type or select an option...'
+                            ) if id_suffix == '1' else None
+                        ],
+                    ),
+                ],
+                style={'height': '50vh', 'margin': '8px'}
+            )
+        ],
+    )
 
-sidebar2 = html.Div(
-    [
-        dbc.Row(
-            [
-                html.H5('Settings',
-                        style={'margin-top': '12px', 'margin-left': '24px'})
-            ],
-            style={"height": "5vh"},
-            className='bg-primary text-white'
-        ),
-        dbc.Row(
-            [
-                html.Div(
-                    [
-                        html.P("Select Team:",
-                               style={'margin-top': '8px', 'margin-bottom': '4px'},
-                               className="dropdown-label"),
-                        dcc.Dropdown(
-                            id="team-dropdown2",
-                            #options=[{"label": team, "value": team} for team in combined['team'].unique()],
-                            options=[{"label": team, "value": team} for team in np.sort(combined['team'].unique())],
-                            value=combined['team'].unique()[0],
-                            className="dropdown"
-                        ),
-                        html.P("Select Position:", className="dropdown-label"),
-                        dcc.Dropdown(
-                            id="position-dropdown2",
-                            options=[{"label": position, "value": position} for position in
-                                     combined['position'].unique()],
-                            value=combined['position'].unique()[0],
-                            className="dropdown"
 
-                        ),
-                        html.P("Select Feature:", className="dropdown-label"),
-                        dcc.Dropdown(
-                            id="feature-dropdown2",
-                            className="dropdown"
-                        ),
-                    ],
-                ),
-            ],
-            style={'height': '50vh', 'margin': '8px'}
-        )
-    ],
-)
+sidebar1 = create_sidebar('1')
+sidebar2 = create_sidebar('2')
 
 content_tab1 = html.Div(
     [
@@ -171,13 +131,6 @@ content_tab1 = html.Div(
                                className='font-weight-bold'),
                         html.Div(id="scatterplot-container")
                     ]),
-                dbc.Col(
-                    [
-                        html.P(
-                               className='font-weight-bold'),
-                        html.Div(id="textcontainer")
-                    ])
-
             ],
             style={'height': '50vh', 'margin': '8px'}
         )
@@ -223,18 +176,16 @@ app.layout = dbc.Container(
     ])
 ])
 
-#
-# app.layout = dbc.Container(
-#     [
-#         dbc.Row(
-#             [
-#                 dbc.Col(sidebar, width=3, className='bg-light'),
-#                 dbc.Col(content, width=9)
-#             ],
-#         ),
-#     ],
-#     fluid=True
-# )
+
+def get_feature_options_values(team, position):
+    mask = (combined["team"] == team) & (combined["position"] == position)
+
+    relevant_features = position_features[position]
+    feature_options = [{"label": feature, "value": feature} for feature in relevant_features if
+                       feature not in ['player', 'team', 'position', 'club', 'age']]
+    feature_value = feature_options[0]['value']
+
+    return feature_options, feature_value
 
 @app.callback(
     Output("feature-dropdown1", "options"),
@@ -242,16 +193,8 @@ app.layout = dbc.Container(
     Input("team-dropdown1", "value"),
     Input("position-dropdown1", "value")
 )
-
 def update_feature_dropdown_y(team, position):
-    mask = (combined["team"] == team) & (combined["position"] == position)
-
-    relevant_features = position_features[position]
-    feature_options = [{"label": feature, "value": feature} for feature in relevant_features if
-                       feature not in ['player', 'team', 'position', 'club', 'age']]
-    feature_value = feature_options[0]['value']
-
-    return feature_options, feature_value
+    return get_feature_options_values(team, position)
 
 @app.callback(
     Output("feature-dropdown1_2", "options"),
@@ -259,16 +202,9 @@ def update_feature_dropdown_y(team, position):
     Input("team-dropdown1", "value"),
     Input("position-dropdown1", "value")
 )
-
 def update_feature_dropdown_x(team, position):
-    mask = (combined["team"] == team) & (combined["position"] == position)
+    return get_feature_options_values(team, position)
 
-    relevant_features = position_features[position]
-    feature_options = [{"label": feature, "value": feature} for feature in relevant_features if
-                       feature not in ['player', 'team', 'position', 'club', 'age']]
-    feature_value = feature_options[0]['value']
-
-    return feature_options, feature_value
 
 @app.callback(
     Output("feature-dropdown2", "options"),
@@ -277,14 +213,8 @@ def update_feature_dropdown_x(team, position):
     Input("position-dropdown2", "value")
 )
 def update_feature_dropdown(team, position):
-    mask = (combined["team"] == team) & (combined["position"] == position)
+    return get_feature_options_values(team, position)
 
-    relevant_features = position_features[position]
-    feature_options = [{"label": feature, "value": feature} for feature in relevant_features if
-                       feature not in ['player', 'team', 'position', 'club', 'age']]
-    feature_value = feature_options[0]['value']
-
-    return feature_options, feature_value
 
 @app.callback(
     Output("barchart-container", "children"),
@@ -293,7 +223,7 @@ def update_feature_dropdown(team, position):
     Input("team-dropdown1", "value"),
     Input("position-dropdown1", "value"),
     Input("feature-dropdown1", "value"),
-    Input("feature-dropdown1_2", "value"),
+    Input("feature-dropdown1_2", "value")
 )
 def update_visualizations_tab1(team, position, feature_y, feature_x):
     mask = (combined["team"] == team) & (combined["position"] == position)
@@ -304,13 +234,21 @@ def update_visualizations_tab1(team, position, feature_y, feature_x):
 
     # Create your visualizations using the filtered_df DataFrame
     barchart = SimpleBarChart("What are the statistics of the players?", "player", feature_y, filtered_df)
-    boxplot = BoxPlot("How is the statistic compared to the average?", "position", feature_y, position_df)
+    boxplot = SimpleBoxPlot("How is the statistic compared to the average?", "position", feature_y, position_df)
     scatterplot = ScatterPlot("How does the statistic relate to other statistics", feature_x, feature_y, position_df)
-
 
     # Add your visualizations as children to the container
     return html.Div([barchart], className="graph_card"), html.Div([boxplot], className="graph_card"), html.Div(
         [scatterplot], className="graph_card")
+
+@app.callback(
+    Output("boxplot", "figure"),
+    [Input("barchart-container", "clickData")]
+)
+def update_boxplot(clickData):
+    player = clickData["points"][0]["x"] if clickData else None
+    boxplot.update_player(player)
+    return boxplot.graph.figure
 
 
 @app.callback(
@@ -319,7 +257,6 @@ def update_visualizations_tab1(team, position, feature_y, feature_x):
     Input("position-dropdown2", "value"),
     Input("feature-dropdown2", "value")
 )
-
 def update_visualizations_tab2(team, position, feature_y):
     mask = (combined["team"] == team) & (combined["position"] == position)
     filtered_df = combined[mask]
@@ -330,7 +267,7 @@ def update_visualizations_tab2(team, position, feature_y):
     aggregate_df = combined.groupby(["team"], as_index=False)[feature_y].mean() # hier klopt iets niet
 
     # Create your visualizations using the filtered_df DataFrame
-    barchart2 = SimpleBarChart("Barchart 2", "team", feature_y, aggregate_df, team, None)
+    barchart2 = BarChart("Barchart 2", "team", feature_y, aggregate_df, team, None)
 
     # Add your visualizations as children to the container
     return html.Div([barchart2], className="graph_card")

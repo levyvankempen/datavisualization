@@ -3,7 +3,7 @@ import plotly.graph_objs as go
 import pandas as pd
 
 
-class BoxPlot(html.Div):
+class SimpleBoxPlot(html.Div):
     def __init__(self, name, x, y, df, player=None):
         self.html_id = name.lower().replace(" ", "-")
         self.df = df
@@ -28,7 +28,7 @@ class BoxPlot(html.Div):
 
     def update_player(self, player):
         self.player = player
-        self.update_figure()  # if needed, update the figure with new player data
+        self.graph.figure = self.create_figure()
 
     def create_fig(self):
         fig = go.Figure()
@@ -39,27 +39,26 @@ class BoxPlot(html.Div):
             name="All Players",
             marker_color='#1f77b4',
             line=dict(color='#1f77b4'),
-            boxpoints='all'
+            boxpoints="all"
         ))
 
-        # # player is the selected player from the clickdata
-        # if self.player:  # Only add scatter trace if a player is selected
-        #     player_data = self.df[self.df['player'] == self.player]
-        #     if not player_data.empty:  # Only add scatter trace if player_data is not empty
-        #         fig.add_trace(go.Scatter(
-        #             x=[self.player] * len(player_data),
-        #             y=player_data[self.y],
-        #             mode='markers',
-        #             marker=dict(
-        #                 color='Red',
-        #                 size=12,
-        #                 line=dict(
-        #                     color='Red',
-        #                     width=2
-        #                 )
-        #             ),
-        #             name=f'{self.player}'
-        #         ))
+        if self.player:
+            player_data = self.df[self.df['player'] == self.player]
+            if not player_data.empty:
+                fig.add_trace(go.Scatter(
+                    x=[self.player] * len(player_data),
+                    y=player_data[self.y],
+                    mode='markers',
+                    marker=dict(
+                        color='Red',
+                        size=12,
+                        line=dict(
+                            color='Red',
+                            width=2
+                        )
+                    ),
+                    name=self.player
+                ))
 
         fig.update_layout(
             xaxis_title=self.x,
