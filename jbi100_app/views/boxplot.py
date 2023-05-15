@@ -28,7 +28,7 @@ class BoxPlot(html.Div):
         ))
 
         fig.update_layout(
-            title=dict(text=name, font=dict(size=18, color='#2c3e50')),
+            #title=dict(text=name, font=dict(size=18, color='#2c3e50')),
             xaxis_title=self.x,
             yaxis_title=self.y,
             plot_bgcolor='rgba(255,255,255,1)',
@@ -38,6 +38,7 @@ class BoxPlot(html.Div):
                       color='#2c3e50'),
             xaxis=dict(gridcolor='rgba(230,230,230,1)'),
             yaxis=dict(gridcolor='rgba(230,230,230,1)'),
+            clickmode='select'
         )
 
         return fig

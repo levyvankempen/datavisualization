@@ -13,13 +13,13 @@ class ScatterPlot(html.Div):
             className="graph_card",
             children=[
                 html.H6(name),
-                dcc.Dropdown(
-                    id="feature-x-dropdown",
-                    options=[{"label": feature, "value": feature} for feature in df.columns if
-                             feature not in ['player', 'team', 'position']],
-                    value=feature_x,
-                    style={'width': '250px'}
-                ),
+                # dcc.Dropdown(
+                #     id="feature-x-dropdown",
+                #     options=[{"label": feature, "value": feature} for feature in df.columns if
+                #              feature not in ['player', 'team', 'position']],
+                #     value=feature_x,
+                #     style={'width': '250px'}
+                # ),
                 dcc.Graph(id=self.html_id, figure=self.create_fig())
             ],
         )
