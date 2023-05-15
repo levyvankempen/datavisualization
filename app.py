@@ -10,6 +10,7 @@ from jbi100_app.views.barchart import SimpleBarChart
 from jbi100_app.views.scatterplot import ScatterPlot
 from jbi100_app.views.boxplot import BoxPlot
 
+
 # Create data
 df, keepers, defenders, midfielders, attackers, combined = get_data()
 
