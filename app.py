@@ -90,6 +90,17 @@ def create_sidebar(id_suffix):
                                 clearable=True,
                                 searchable=True,
                                 placeholder='Type or select an option...'
+                            ) if id_suffix == '1' else None,
+                            html.P("Select player to highlight them:", className="dropdown-label") if id_suffix == '1' else None,
+                            dcc.Dropdown(
+                                id=f"select-player",
+                                options=[{"label": player, "value": player} for player in
+                                         combined['player'].unique()],
+                                value=combined['player'].unique(),
+                                className="dropdown",
+                                clearable=True,
+                                searchable=True,
+                                placeholder='Type or select an option...'
                             ) if id_suffix == '1' else None
                         ],
                     ),
@@ -203,7 +214,10 @@ def update_feature_dropdown_y(team, position):
     Input("position-dropdown1", "value")
 )
 def update_feature_dropdown_x(team, position):
-    return get_feature_options_values(team, position)
+    feature_options, _ = get_feature_options_values(team, position)
+    # Choose the second feature from the list for this dropdown
+    feature_value = feature_options[1]['value'] if len(feature_options) > 1 else feature_options[0]['value']
+    return feature_options, feature_value
 
 
 @app.callback(
@@ -215,6 +229,20 @@ def update_feature_dropdown_x(team, position):
 def update_feature_dropdown(team, position):
     return get_feature_options_values(team, position)
 
+@app.callback(
+    Output("select-player", "options"),
+    Output("select-player", "value"),
+    Input("team-dropdown1", "value"),
+    Input("position-dropdown1", "value")
+)
+def update_player_dropdown(team, position):
+    mask = (combined["team"] == team) & (combined["position"] == position)
+    filtered_df = combined[mask]
+    player_options = [{"label": player, "value": player} for player in filtered_df['player']]
+    player_value = player_options[0]['value']
+
+    return player_options, player_value
+
 
 @app.callback(
     Output("barchart-container", "children"),
@@ -223,32 +251,48 @@ def update_feature_dropdown(team, position):
     Input("team-dropdown1", "value"),
     Input("position-dropdown1", "value"),
     Input("feature-dropdown1", "value"),
-    Input("feature-dropdown1_2", "value")
+    Input("feature-dropdown1_2", "value"),
+    Input("select-player", "value")
 )
-def update_visualizations_tab1(team, position, feature_y, feature_x):
+def update_visualizations_tab1(team, position, feature_y, feature_x, selected_player):
     mask = (combined["team"] == team) & (combined["position"] == position)
     filtered_df = combined[mask]
 
     position_mask = (combined["position"] == position)
     position_df = combined[position_mask]
 
+    global barchart
+    global boxplot
+    global scatterplot
+
     # Create your visualizations using the filtered_df DataFrame
-    barchart = SimpleBarChart("What are the statistics of the players?", "player", feature_y, filtered_df)
-    boxplot = SimpleBoxPlot("How is the statistic compared to the average?", "position", feature_y, position_df)
-    scatterplot = ScatterPlot("How does the statistic relate to other statistics", feature_x, feature_y, position_df)
+    barchart = SimpleBarChart("What are the statistics of the players?", "player", feature_y, filtered_df, selected_player)
+    boxplot = SimpleBoxPlot("How is the statistic compared to the average", "position", feature_y, position_df, selected_player)
+    scatterplot = ScatterPlot("How does the statistic relate to other statistics", feature_x, feature_y, position_df, selected_player)
 
     # Add your visualizations as children to the container
     return html.Div([barchart], className="graph_card"), html.Div([boxplot], className="graph_card"), html.Div(
         [scatterplot], className="graph_card")
 
 @app.callback(
-    Output("boxplot", "figure"),
-    [Input("barchart-container", "clickData")]
+    Output('how-is-the-statistic-compared-to-the-average', 'figure'),
+    Input('how-does-the-statistic-relate-to-other-statistics', 'selectedData'),
+    Input("feature-dropdown1", "value"),
+    Input("select-player", "value")
 )
-def update_boxplot(clickData):
-    player = clickData["points"][0]["x"] if clickData else None
-    boxplot.update_player(player)
-    return boxplot.graph.figure
+def update_boxplot(selectedData, feature_y, selected_player):
+    if selectedData is None:
+        # No selection, display all data
+        filtered_df = combined
+    else:
+        # Get indices of selected points and filter DataFrame
+        indices = [point['pointIndex'] for point in selectedData['points']]
+        filtered_df = combined.iloc[indices]
+
+    # Update boxplot
+    boxplot.update_data(filtered_df, selected_player)
+    return html.Div([boxplot], className="graph_card")
+
 
 
 @app.callback(

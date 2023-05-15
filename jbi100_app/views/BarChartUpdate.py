@@ -4,11 +4,12 @@ import pandas as pd
 
 
 class SimpleBarChart(html.Div):
-    def __init__(self, name, x, y, df):
+    def __init__(self, name, x, y, df, selected_player=None):
         self.html_id = name.lower().replace(" ", "-")
         self.df = df
         self.x = x
         self.y = y
+        self.selected_player = selected_player
 
         if not isinstance(df, pd.DataFrame):
             raise ValueError("df must be a pandas DataFrame")
@@ -26,11 +27,14 @@ class SimpleBarChart(html.Div):
     def create_fig(self):
         fig = go.Figure()
 
+        # Create a list of colors for the bars
+        colors = ['lightsalmon' if player == self.selected_player else '#1f77b4' for player in self.df[self.x]]
+
         fig.add_trace(go.Bar(
             x=self.df[self.x],
             y=self.df[self.y],
             name="Players",
-            marker_color='#1f77b4'
+            marker_color=colors
         ))
 
         fig.update_layout(

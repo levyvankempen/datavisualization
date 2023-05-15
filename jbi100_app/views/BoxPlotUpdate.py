@@ -4,19 +4,19 @@ import pandas as pd
 
 
 class SimpleBoxPlot(html.Div):
-    def __init__(self, name, x, y, df, player=None):
+    def __init__(self, name, x, y, df, selected_player=None):
         self.html_id = name.lower().replace(" ", "-")
         self.df = df
         self.x = x
         self.y = y
-        self.player = player
+        self.selected_player = selected_player
 
         if not isinstance(df, pd.DataFrame):
             raise ValueError("df must be a pandas DataFrame")
         if x not in df.columns or y not in df.columns:
             raise ValueError("x and y must be column names in df")
-        if player and player not in df['player'].unique():
-            raise ValueError(f"player {player} not found in df['player']")
+        # if selected_player not in df['player'].unique():
+        #     raise ValueError(f"player {selected_player} not found in df['player']")
 
         super().__init__(
             className="graph_card",
@@ -26,9 +26,10 @@ class SimpleBoxPlot(html.Div):
             ],
         )
 
-    def update_player(self, player):
-        self.player = player
-        self.graph.figure = self.create_figure()
+    def update_data(self, df):
+        self.df = df
+        # self.graph.figure = self.create_fig()
+        return self.create_fig()
 
     def create_fig(self):
         fig = go.Figure()
@@ -42,22 +43,22 @@ class SimpleBoxPlot(html.Div):
             boxpoints="all"
         ))
 
-        if self.player:
-            player_data = self.df[self.df['player'] == self.player]
+        if self.selected_player:
+            player_data = self.df[self.df['player'] == self.selected_player]
             if not player_data.empty:
                 fig.add_trace(go.Scatter(
-                    x=[self.player] * len(player_data),
+                    x=player_data[self.x],
                     y=player_data[self.y],
                     mode='markers',
                     marker=dict(
-                        color='Red',
+                        color='lightsalmon',
                         size=12,
                         line=dict(
-                            color='Red',
+                            color='lightsalmon',
                             width=2
                         )
                     ),
-                    name=self.player
+                    name=self.selected_player
                 ))
 
         fig.update_layout(
@@ -72,3 +73,5 @@ class SimpleBoxPlot(html.Div):
         )
 
         return fig
+
+
