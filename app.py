@@ -1,27 +1,25 @@
+# Import necessary libraries and modules
 from dash import html, dcc
 import dash
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output
 import numpy as np
 
-from jbi100_app.data import get_data
-from jbi100_app.data import get_relevant_features
+# Import modules for data processing and views from the application
+from jbi100_app.data import get_data, get_relevant_features
 from jbi100_app.views.barchart import BarChart
 from jbi100_app.views.scatterplot import ScatterPlot
-from jbi100_app.views.boxplot import BoxPlot
-
 from jbi100_app.views.PlayerInfo import PlayerInfo
-from jbi100_app.views.TeamInfo import TeamInfo
 from jbi100_app.views.BarChartUpdate import SimpleBarChart
 from jbi100_app.views.BoxPlotUpdate import SimpleBoxPlot
 
-
-# Create data
+# Get the combined data from the get_data function
 combined = get_data()
 
 # Get relevant position features
 useful_cols_GK, useful_cols_DF, useful_cols_MF, useful_col_FW = get_relevant_features()
 
+# Map the relevant features to their respective player positions
 position_features = {
     "GK": useful_cols_GK,
     "DF": useful_cols_DF,
@@ -29,6 +27,7 @@ position_features = {
     "FW": useful_col_FW
 }
 
+# Map the relevant features to their respective player positions
 position_features = {
     "Goalkeeper": useful_cols_GK,
     "Defender": useful_cols_DF,
@@ -36,10 +35,12 @@ position_features = {
     "Forward": useful_col_FW
 }
 
+# Create a Dash app
 app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY])
 
-
+# Define a function to create a sidebar for the dashboard
 def create_sidebar(id_suffix):
+    # The sidebar contains dropdowns for selecting team, position, and features
     return html.Div(
         [
             dbc.Row(
@@ -115,6 +116,7 @@ def create_sidebar(id_suffix):
 sidebar1 = create_sidebar('1')
 sidebar2 = create_sidebar('2')
 
+# Define the layout for the content of the first tab
 content_tab1 = html.Div(
     [
         dbc.Row(
@@ -162,6 +164,7 @@ content_tab1 = html.Div(
     ]
 )
 
+# Define the layout for the content of the second tab
 content_tab2 = html.Div(
     [
         dbc.Row(
@@ -177,7 +180,7 @@ content_tab2 = html.Div(
     ]
 )
 
-
+# Set the app layout
 app.layout = dbc.Container(
     [
     dbc.Tabs(id='tabs', active_tab='tab-1', children=[
@@ -200,7 +203,7 @@ app.layout = dbc.Container(
     ])
 ])
 
-
+# Define a function to get feature options and values based on selected team and position
 def get_feature_options_values(team, position):
     mask = (combined["team"] == team) & (combined["position"] == position)
 
@@ -211,6 +214,7 @@ def get_feature_options_values(team, position):
 
     return feature_options, feature_value
 
+# Define callbacks for updating feature dropdowns
 @app.callback(
     Output("feature-dropdown1", "options"),
     Output("feature-dropdown1", "value"),
@@ -242,6 +246,7 @@ def update_feature_dropdown_x(team, position):
 def update_feature_dropdown(team, position):
     return get_feature_options_values(team, position)
 
+# Define callback for updating player dropdown
 @app.callback(
     Output("select-player", "options"),
     Input("team-dropdown1", "value"),
@@ -254,6 +259,7 @@ def update_player_dropdown(team, position):
 
     return player_options
 
+# Define callback for updating player info
 @app.callback(
     Output("player-info-container", "children"),
     Input("select-player", "value"),
@@ -267,7 +273,7 @@ def update_player_info(selected_player):
 
     return player_info.get_component()
 
-
+# Define callback for updating visualizations in the first tab
 @app.callback(
     Output("barchart-container", "children"),
     Output("boxplot-container", "children"),
@@ -285,20 +291,16 @@ def update_visualizations_tab1(team, position, feature_y, feature_x, selected_pl
     position_mask = (combined["position"] == position)
     position_df = combined[position_mask]
 
-    global barchart
-    global boxplot
-    global scatterplot
-
-    # Create your visualizations using the filtered_df DataFrame
+    # Create the visualizations using the filtered_df DataFrame
     barchart = SimpleBarChart("What are the statistics of the players?", "player", feature_y, filtered_df, selected_player)
     boxplot = SimpleBoxPlot("How is the statistic compared to the average?", "position", feature_y, position_df, selected_player)
     scatterplot = ScatterPlot("How does the statistic relate to other statistics?", feature_x, feature_y, position_df, selected_player)
 
-    # Add your visualizations as children to the container
+    # Add the visualizations as children to the container
     return html.Div([barchart], className="graph_card"), html.Div([boxplot], className="graph_card"), html.Div(
         [scatterplot], className="graph_card")
 
-
+# Define callback for updating visualizations in the second tab
 @app.callback(
     Output("barchart2-container", "children"),
     Input("team-dropdown2", "value"),
@@ -314,10 +316,10 @@ def update_visualizations_tab2(team, position, feature_y):
 
     aggregate_df = combined.groupby(["team"], as_index=False)[feature_y].mean() # hier klopt iets niet
 
-    # Create your visualizations using the filtered_df DataFrame
+    # Create the visualizations using the filtered_df DataFrame
     barchart2 = BarChart("Barchart 2", "team", feature_y, aggregate_df, team, None)
 
-    # Add your visualizations as children to the container
+    # Add the visualizations as children to the container
     return html.Div([barchart2], className="graph_card")
 
 

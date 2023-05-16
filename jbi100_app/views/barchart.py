@@ -1,5 +1,5 @@
-from dash import dcc, html
-import plotly.graph_objects as go
+from dash import dcc, html  # Importing the dcc and html modules from the dash library
+import plotly.graph_objects as go  # Importing the go module from the plotly.graph_objects library
 
 
 class BarChart(html.Div):
@@ -14,25 +14,20 @@ class BarChart(html.Div):
         super().__init__(
             className="graph_card",
             children=[
-                html.H6("Compare team aggregates per position"),
+                html.H6("Compare team aggregates per position"),  # Adding a heading to the graph card
                 dcc.Graph(id=self.html_id, figure=self.create_fig())
+                # Creating a graph using dcc.Graph and specifying its id and figure
             ],
         )
 
     def create_fig(self):
-        fig = go.Figure()
+        fig = go.Figure()  # Creating an empty figure using plotly.graph_objects.Figure()
 
-        x_values = self.df[self.feature_x]
-        y_values = self.df[self.feature_y]
-        bar_color = '#1f77b4'
+        x_values = self.df[self.feature_x]  # Extracting x-axis values from the DataFrame
+        y_values = self.df[self.feature_y]  # Extracting y-axis values from the DataFrame
+        bar_color = '#1f77b4'  # Setting the default color for the bars
 
-        # if self.highlighted_team is not None:
-        #     bar_color = ['grey' if team != self.highlighted_team else '#1f77b4' for team in self.df["team"]]
-        # elif self.highlighted_player is not None:
-        #     bar_color = ['grey' if player != self.highlighted_player else '#1f77b4' for player in self.df["player"]]
-        # else:
-        #     bar_color = '#1f77b4'
-
+        # Conditional coloring based on highlighted_team and highlighted_player
         if self.highlighted_team is not None:
             # Find the indices of the highlighted team in the x_values array
             highlighted_indices = [i for i, x in enumerate(x_values) if x == self.highlighted_team]
@@ -54,18 +49,16 @@ class BarChart(html.Div):
             x=x_values,
             y=y_values,
             marker_color=colors
-        ))
+        ))  # Adding a bar trace to the figure with specified x and y values and marker colors
 
         fig.update_layout(
-            xaxis_title=self.feature_x,
-            yaxis_title=self.feature_y,
-            plot_bgcolor='rgba(255,255,255,1)',
-            margin=dict(l=0, r=0, t=30, b=0),
-            font=dict(family='Arial, sans-serif',
-                      size=14,
-                      color='#2c3e50'),
-            xaxis=dict(gridcolor='rgba(230,230,230,1)'),
-            yaxis=dict(gridcolor='rgba(230,230,230,1)'),
+            xaxis_title=self.feature_x,  # Setting the x-axis title
+            yaxis_title=self.feature_y,  # Setting the y-axis title
+            plot_bgcolor='rgba(255,255,255,1)',  # Setting the plot background color
+            margin=dict(l=0, r=0, t=30, b=0),  # Setting the margin
+            font=dict(family='Arial, sans-serif', size=14, color='#2c3e50'),  # Setting the font style
+            xaxis=dict(gridcolor='rgba(230,230,230,1)'),  # Setting the x-axis grid color
+            yaxis=dict(gridcolor='rgba(230,230,230,1)'),  # Setting the y-axis grid color
         )
         return fig
 
@@ -77,10 +70,9 @@ class BarChart(html.Div):
         else:
             bar_color = '#1f77b4'
 
-        # Find the index of the x_value in the x-axis data
-        idx = self.df[self.feature_x].tolist().index(x_value)
+        idx = self.df[self.feature_x].tolist().index(x_value)  # Find the index of the x_value in the x-axis data
 
-        # Update the color of the bar corresponding to the x_value
-        self.fig.update_traces(marker_color=[bar_color[idx]], selector=dict(type='bar', x=x_value))
+        self.fig.update_traces(marker_color=[bar_color[idx]],
+                               selector=dict(type='bar', x=x_value))  # Update the color of the bar corresponding to the x_value
 
         return fig

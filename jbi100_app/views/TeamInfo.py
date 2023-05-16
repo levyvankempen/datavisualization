@@ -1,4 +1,4 @@
-from dash import html
+from dash import html  # Importing the html module from the dash library
 
 class TeamInfo:
     def __init__(self, team, feature_value):
@@ -7,6 +7,6 @@ class TeamInfo:
 
     def get_component(self):
         return html.Div([
-            html.P(f"Team: {self.team}", className='font-weight-bold'),
-            html.P(f"Feature Value: {self.feature_value}")
+            html.P(f"Team: {self.team}", className='font-weight-bold'),  # Displaying the team name in bold
+            html.P(f"Feature Value: {self.feature_value}")  # Displaying the feature value
         ])

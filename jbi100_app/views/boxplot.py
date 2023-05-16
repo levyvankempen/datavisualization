@@ -1,7 +1,6 @@
-from dash import dcc, html
-import plotly.graph_objs as go
-import pandas as pd
-
+from dash import dcc, html  # Importing the dcc and html modules from the dash library
+import plotly.graph_objs as go  # Importing the go module from the plotly.graph_objs library
+import pandas as pd  # Importing the pandas library
 
 class BoxPlot(html.Div):
     def __init__(self, name, x, y, df, player=None):
@@ -21,25 +20,26 @@ class BoxPlot(html.Div):
         super().__init__(
             className="graph_card",
             children=[
-                html.H6(name),
-                dcc.Graph(id=self.html_id, figure=self.create_fig())
+                html.H6(name),  # Adding a heading to the graph card
+                dcc.Graph(id=self.html_id, figure=self.create_fig())  # Creating a graph using dcc.Graph and specifying its id and figure
             ],
         )
 
-    def update_player(self, player):
-        self.player = player
-        self.update_figure()  # if needed, update the figure with new player data
+    # # Does not work unfortunately
+    # def update_player(self, player):
+    #     self.player = player
+    #     self.update_figure()  # If needed, update the figure with new player data
 
     def create_fig(self):
-        fig = go.Figure()
+        fig = go.Figure()  # Creating an empty figure using plotly.graph_objs.Figure()
 
         fig.add_trace(go.Box(
             y=self.df[self.y],
             x=self.df[self.x],
-            name="All Players",
-            marker_color='#1f77b4',
-            line=dict(color='#1f77b4'),
-            boxpoints='all'
+            name="All Players",  # Setting the trace name
+            marker_color='#1f77b4',  # Setting the color of the boxes
+            line=dict(color='#1f77b4'),  # Setting the color of the lines
+            boxpoints='all'  # Displaying all the points
         ))
 
         # # player is the selected player from the clickdata
@@ -62,14 +62,14 @@ class BoxPlot(html.Div):
         #         ))
 
         fig.update_layout(
-            xaxis_title=self.x,
-            yaxis_title=self.y,
-            plot_bgcolor='rgba(255,255,255,1)',
-            margin=dict(l=0, r=0, t=30, b=0),
-            font=dict(family='Arial, sans-serif', size=14, color='#2c3e50'),
-            xaxis=dict(gridcolor='rgba(230,230,230,1)'),
-            yaxis=dict(gridcolor='rgba(230,230,230,1)'),
-            clickmode='select'
+            xaxis_title=self.x,  # Setting the x-axis title
+            yaxis_title=self.y,  # Setting the y-axis title
+            plot_bgcolor='rgba(255,255,255,1)',  # Setting the plot background color
+            margin=dict(l=0, r=0, t=30, b=0),  # Setting the margin
+            font=dict(family='Arial, sans-serif', size=14, color='#2c3e50'),  # Setting the font style
+            xaxis=dict(gridcolor='rgba(230,230,230,1)'),  # Setting the x-axis grid color
+            yaxis=dict(gridcolor='rgba(230,230,230,1)'),  # Setting the y-axis grid color
+            clickmode='select'  # Setting the click mode for interactivity
         )
 
         return fig
