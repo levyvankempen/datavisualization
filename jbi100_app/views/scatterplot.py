@@ -1,5 +1,6 @@
 from dash import dcc, html
 import plotly.graph_objects as go
+import numpy as np
 
 
 class ScatterPlot(html.Div):
@@ -24,6 +25,9 @@ class ScatterPlot(html.Div):
         x_values = self.df[self.feature_x]
         y_values = self.df[self.feature_y]
 
+        # Calculate coefficients for the polynomial (line)
+        m, b = np.polyfit(x_values, y_values, 1)
+
         fig.add_trace(go.Scatter(
             x=x_values,
             y=y_values,
@@ -35,6 +39,19 @@ class ScatterPlot(html.Div):
             text=self.df['player'],
             hovertemplate='<b>%{text}</b><br><br>' + self.feature_x + ': %{x}<br>' + self.feature_y + ': %{y}<extra></extra>',
             name="All Players Same Position"
+        ))
+
+        # Add the regression line
+        fig.add_trace(go.Scatter(
+            x=x_values,
+            y=m*x_values + b,
+            mode='lines',
+            line=dict(
+                color='grey',
+                dash='10px,25px'
+            ),
+            name="Line of Best Fit",
+            visible="legendonly"
         ))
 
         if self.selected_player:
@@ -64,4 +81,3 @@ class ScatterPlot(html.Div):
         )
 
         return fig
-

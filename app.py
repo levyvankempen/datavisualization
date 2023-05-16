@@ -10,6 +10,8 @@ from jbi100_app.views.barchart import BarChart
 from jbi100_app.views.scatterplot import ScatterPlot
 from jbi100_app.views.boxplot import BoxPlot
 
+from jbi100_app.views.PlayerInfo import PlayerInfo
+from jbi100_app.views.TeamInfo import TeamInfo
 from jbi100_app.views.BarChartUpdate import SimpleBarChart
 from jbi100_app.views.BoxPlotUpdate import SimpleBoxPlot
 
@@ -96,7 +98,6 @@ def create_sidebar(id_suffix):
                                 id=f"select-player",
                                 options=[{"label": player, "value": player} for player in
                                          combined['player'].unique()],
-                                value=combined['player'].unique(),
                                 className="dropdown",
                                 clearable=True,
                                 searchable=True,
@@ -121,6 +122,18 @@ content_tab1 = html.Div(
                 dbc.Col(
                     [
                         html.P(
+                            className='font-weight-bold'),
+                        html.Div(id="player-info-container")
+                    ])
+            ],
+            style={'height': '10vh',
+                   'margin-top': '16px', 'margin-left': '8px',
+                   'margin-bottom': '0px', 'margin-right': '8px'}),
+        dbc.Row(
+            [
+                dbc.Col(
+                    [
+                        html.P(
                                className='font-weight-bold'),
                         html.Div(id="barchart-container")
                     ]),
@@ -132,7 +145,7 @@ content_tab1 = html.Div(
                     ])
             ],
             style={'height': '50vh',
-                   'margin-top': '16px', 'margin-left': '8px',
+                   'margin-top': '0px', 'margin-left': '8px',
                    'margin-bottom': '8px', 'margin-right': '8px'}),
         dbc.Row(
             [
@@ -143,8 +156,9 @@ content_tab1 = html.Div(
                         html.Div(id="scatterplot-container")
                     ]),
             ],
-            style={'height': '50vh', 'margin': '8px'}
-        )
+            style={'height': '50vh',
+                   'margin-top': '20px', 'margin-left': '8px',
+                   'margin-bottom': '8px', 'margin-right': '8px'})
     ]
 )
 
@@ -154,13 +168,12 @@ content_tab2 = html.Div(
             [
                 dbc.Col(
                     [
-                        html.P("barchart2-container",
+                        html.P(
                                className='font-weight-bold'),
                         html.Div(id="barchart2-container")
                     ])
             ],
-            style= {'height': '50vh', 'margin': '8px'}
-        )
+            style= {'height': '50vh', 'margin': '8px'})
     ]
 )
 
@@ -231,7 +244,6 @@ def update_feature_dropdown(team, position):
 
 @app.callback(
     Output("select-player", "options"),
-    Output("select-player", "value"),
     Input("team-dropdown1", "value"),
     Input("position-dropdown1", "value")
 )
@@ -239,9 +251,21 @@ def update_player_dropdown(team, position):
     mask = (combined["team"] == team) & (combined["position"] == position)
     filtered_df = combined[mask]
     player_options = [{"label": player, "value": player} for player in filtered_df['player']]
-    player_value = player_options[0]['value']
 
-    return player_options, player_value
+    return player_options
+
+@app.callback(
+    Output("player-info-container", "children"),
+    Input("select-player", "value"),
+)
+def update_player_info(selected_player):
+    # Assuming 'combined' is your DataFrame and 'player' is the column with player names
+    player_data = combined[combined['player'] == selected_player].iloc[0]
+
+    # Create the PlayerInfo component
+    player_info = PlayerInfo(player_data)
+
+    return player_info.get_component()
 
 
 @app.callback(
@@ -267,32 +291,12 @@ def update_visualizations_tab1(team, position, feature_y, feature_x, selected_pl
 
     # Create your visualizations using the filtered_df DataFrame
     barchart = SimpleBarChart("What are the statistics of the players?", "player", feature_y, filtered_df, selected_player)
-    boxplot = SimpleBoxPlot("How is the statistic compared to the average", "position", feature_y, position_df, selected_player)
-    scatterplot = ScatterPlot("How does the statistic relate to other statistics", feature_x, feature_y, position_df, selected_player)
+    boxplot = SimpleBoxPlot("How is the statistic compared to the average?", "position", feature_y, position_df, selected_player)
+    scatterplot = ScatterPlot("How does the statistic relate to other statistics?", feature_x, feature_y, position_df, selected_player)
 
     # Add your visualizations as children to the container
     return html.Div([barchart], className="graph_card"), html.Div([boxplot], className="graph_card"), html.Div(
         [scatterplot], className="graph_card")
-
-@app.callback(
-    Output('how-is-the-statistic-compared-to-the-average', 'figure'),
-    Input('how-does-the-statistic-relate-to-other-statistics', 'selectedData'),
-    Input("feature-dropdown1", "value"),
-    Input("select-player", "value")
-)
-def update_boxplot(selectedData, feature_y, selected_player):
-    if selectedData is None:
-        # No selection, display all data
-        filtered_df = combined
-    else:
-        # Get indices of selected points and filter DataFrame
-        indices = [point['pointIndex'] for point in selectedData['points']]
-        filtered_df = combined.iloc[indices]
-
-    # Update boxplot
-    boxplot.update_data(filtered_df, selected_player)
-    return html.Div([boxplot], className="graph_card")
-
 
 
 @app.callback(

@@ -14,40 +14,10 @@ class BarChart(html.Div):
         super().__init__(
             className="graph_card",
             children=[
-                html.H6(name),
+                html.H6("Compare team aggregates per position"),
                 dcc.Graph(id=self.html_id, figure=self.create_fig())
             ],
         )
-
-#     def create_fig(self):
-#         fig = go.Figure()
-#
-#         x_values = self.df[self.feature_x]
-#         y_values = self.df[self.feature_y]
-#         bar_color = '#1f77b4'
-#
-#
-#
-#         fig.add_trace(go.Bar(
-#             x=x_values,
-#             y=y_values,
-#             marker_color=bar_color
-#         ))
-#
-#         fig.update_layout(
-#             xaxis_title=self.feature_x,
-#             yaxis_title=self.feature_y,
-#             plot_bgcolor='rgba(255,255,255,1)',
-#             margin=dict(l=0, r=0, t=30, b=0),
-#             font=dict(family='Arial, sans-serif',
-#                       size=14,
-#                       color='#2c3e50'),
-#             xaxis=dict(gridcolor='rgba(230,230,230,1)'),
-#             yaxis=dict(gridcolor='rgba(230,230,230,1)'),
-#         )
-#         return fig
-#
-#
 
     def create_fig(self):
         fig = go.Figure()
@@ -68,7 +38,7 @@ class BarChart(html.Div):
             highlighted_indices = [i for i, x in enumerate(x_values) if x == self.highlighted_team]
 
             # Create a list of colors for each bar, with the highlighted team's bars set to a different color
-            colors = [bar_color if i not in highlighted_indices else '#ff7f0e' for i in range(len(x_values))]
+            colors = [bar_color if i not in highlighted_indices else 'lightsalmon' for i in range(len(x_values))]
 
         elif self.highlighted_player is not None:
             # Find the index of the highlighted player in the x_values array
